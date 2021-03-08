@@ -1,25 +1,4 @@
-
 //Inicializador del elemento Slider
-var jsonData = []
-
-
-//traer datos
-$(document).ready(function () {
-  $('select:not([multiple])').material_select();
-  $.get("http://localhost:3000/casas/", function (data, status) {
-
-    for (let i = 0; i < data.length; i++) {
-      data[i].Precio = parseInt((data[i].Precio).replace("$", "").replace(",", ""))
-    }
-    jsonData = data
-  });
-
-  $("#buscar").click(function () {
-    renderCasas(jsonData);
-  });
-
-})
-
 $("#rangoPrecio").ionRangeSlider({
   type: "double",
   grid: false,
@@ -27,39 +6,34 @@ $("#rangoPrecio").ionRangeSlider({
   max: 100000,
   from: 1000,
   to: 20000,
-<<<<<<< HEAD
   prefix: "$",
 
   onFinish: function (data) {
     let desde = data.from
     let hasta = data.to
 
-
-    let rangoCasas = [];
     
-    for (let i = 0; i < jsonData.length; i++) {
-      console.log(jsonData[i].Precio)
-      if (jsonData[i].Precio > desde && jsonData[i].Precio < hasta) {
 
-        jsonData[i].Precio = (new Intl.NumberFormat('ja-JP', {
-          style: 'currency',
-          currency: 'USD'
-        }).format(jsonData[i].Precio))
+    $.get("http://localhost:3000/casas/", function (data, status) {
 
-        rangoCasas.push(jsonData[i]);
+    
+      let rangoCasas = [];
+      for (let i = 0; i < data.length; i++) {
 
+        data[i].Precio =  parseInt((data[i].Precio).replace("$","").replace(",",""))
+      
+        if (data[i].Precio > desde && data[i].Precio < hasta) {
+          rangoCasas.push(data[i]);
+        }
       }
-    }
 
 console.log(rangoCasas)
-    limpiarBusqueda()
-    renderCasas(rangoCasas)
-    
+      renderCasas(rangoCasas)
+
+
+    });
 
   }
-=======
-  prefix: "$"
->>>>>>> parent of a580acd (BusquedaRango)
 })
 
 function setSearch() {
@@ -77,64 +51,59 @@ function setSearch() {
 setSearch()
 
 
-<<<<<<< HEAD
-
-=======
 //traer datos
+$(document).ready(function () {
+  $('select:not([multiple])').material_select();
+  $("#buscar").click(function () {
 
+    $.get("http://localhost:3000/casas/", function (data, status) {
 
+      renderCasas(data);
 
-  $(document).ready(function(){
-    $("#buscar").click(function(){
-      $.get("http://localhost:3000/casas/", function(data, status){
->>>>>>> parent of a580acd (BusquedaRango)
-
-      //console.log(JSON.stringify(data))
-
-
-        //alert("Data: " + JSON.stringify(data) + "\nStatus: " + status);
-
-        $("#l1").append(`
-
-        <div class="card horizontal">
-        <div class="card-image">
-          <img src="img/home.jpg">
-        </div>
-        <div class="card-stacked">
-          <div class="card-content">
-            <div>
-              <b>Direccion: ${data[0].Direccion} </b><p>  </p>
-            </div>
-            <div>
-              <b>Ciudad: ${data[0].Ciudad} </b><p>  </p>
-            </div>
-            <div>
-              <b>Telefono: ${data[0].Telefono} </b><p></p>
-            </div>
-            <div>
-              <b>Código postal: ${data[0].Codigo_Postal} </b><p></p>
-            </div>
-            <div>
-              <b>Precio: ${data[0].Precio} </b><p></p>
-            </div>
-            <div>
-              <b>Tipo: ${data[0].Casa}</b><p></p>
-            </div>
-          </div>
-          <div class="card-action right-align">
-            <a href="#">Ver más</a>
-          </div>
-        </div>
-      </div>
-        
-        `)
-
-
-      });
     });
-  
-
-
+  });
 
 })
 
+
+function renderCasas(data) {
+
+  for (let i = 0; i < data.length; i++) {
+    $("#l1").append(`
+
+    <div class="card horizontal">
+    <div class="card-image">
+      <img src="img/home.jpg">
+    </div>
+    <div class="card-stacked">
+      <div class="card-content">
+        <div>
+          <b>Direccion: ${data[i].Direccion} </b><p></p>
+        </div>
+        <div>
+          <b>Ciudad: ${data[i].Ciudad} </b><p></p>
+        </div>
+        <div>
+          <b>Telefono: ${data[i].Telefono} </b><p></p>
+        </div>
+        <div>
+          <b>Código postal: ${data[i].Codigo_Postal} </b><p></p>
+        </div>
+        <div>
+          <b>Precio: ${data[i].Precio} </b><p></p>
+        </div>
+        <div>
+          <b>Tipo: ${data[i].Tipo}</b><p></p>
+        </div>
+      </div>
+      <div class="card-action right-align">
+        <a href="#">Ver más</a>
+      </div>
+    </div>
+  </div>
+    
+    `)
+  }
+
+
+}
