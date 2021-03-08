@@ -1,4 +1,6 @@
 //Inicializador del elemento Slider
+var dataJson = [];
+
 $("#rangoPrecio").ionRangeSlider({
   type: "double",
   grid: false,
@@ -12,24 +14,23 @@ $("#rangoPrecio").ionRangeSlider({
     let desde = data.from
     let hasta = data.to
 
-    
+
 
     $.get("http://localhost:3000/casas/", function (data, status) {
 
-    
+
       let rangoCasas = [];
       for (let i = 0; i < data.length; i++) {
 
-        data[i].Precio =  parseInt((data[i].Precio).replace("$","").replace(",",""))
-      
+        data[i].Precio = parseInt((data[i].Precio).replace("$", "").replace(",", ""))
+
         if (data[i].Precio > desde && data[i].Precio < hasta) {
           rangoCasas.push(data[i]);
         }
       }
 
-console.log(rangoCasas)
+      limpiarBusqueda()
       renderCasas(rangoCasas)
-
 
     });
 
@@ -41,10 +42,13 @@ function setSearch() {
   busqueda.on('change', (e) => {
     if (this.customSearch == false) {
       this.customSearch = true
+      $('#buscar').text("Ver Todos")
     } else {
       this.customSearch = false
+      $('#buscar').text("Busqueda Pesonalizada")
     }
     $('#personalizada').toggleClass('invisible')
+    
   })
 }
 
@@ -53,17 +57,62 @@ setSearch()
 
 //traer datos
 $(document).ready(function () {
-  $('select:not([multiple])').material_select();
-  $("#buscar").click(function () {
 
-    $.get("http://localhost:3000/casas/", function (data, status) {
+  $.get("http://localhost:3000/casas/", function (data, status) {
+    dataJson = data;
 
-      renderCasas(data);
 
-    });
+    let renderCiudad =  llenarSelect(dataJson,"Ciudad");
+
+    for (let i = 0; i < renderCiudad.length; i++) {
+
+      $("#ciudad").append(`<option value= ${renderCiudad[i]} > ${renderCiudad[i]} </option>`)
+    }
+
+    let renderTipo =  llenarSelect(dataJson,"Tipo");
+
+    for (let i = 0; i < renderTipo.length; i++) {
+
+      $("#tipo").append(`<option value= ${renderTipo[i]} > ${renderTipo[i]} </option>`)
+    }
+
+
+
+
+    $('select:not([multiple])').material_select();
   });
 
+
+  $("#buscar").click(function () {
+    limpiarBusqueda()
+    renderCasas(dataJson);
+  });
 })
+
+function llenarSelect(data,h){
+
+  let ciudadBusqueda = [];
+
+  for (i = 0; i < data.length; i++) {
+
+    if (h=="Ciudad"){
+      ciudadBusqueda.push(data[i].Ciudad);
+    }else{
+      ciudadBusqueda.push(data[i].Tipo);
+    }
+    
+  }
+
+  const unicos = ciudadBusqueda.filter((valor, indice) => {
+    return ciudadBusqueda.indexOf(valor) === indice;
+  })
+
+  let ciudadOrdenada = unicos.sort()
+
+  return ciudadOrdenada;
+}
+
+
 
 
 function renderCasas(data) {
@@ -104,6 +153,12 @@ function renderCasas(data) {
     
     `)
   }
+
+}
+
+function limpiarBusqueda() {
+
+  $("#l1").empty();
 
 
 }
