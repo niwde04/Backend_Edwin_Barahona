@@ -1,4 +1,3 @@
-
 //Inicializador del elemento Slider
 $("#rangoPrecio").ionRangeSlider({
   type: "double",
@@ -7,7 +6,42 @@ $("#rangoPrecio").ionRangeSlider({
   max: 100000,
   from: 1000,
   to: 20000,
-  prefix: "$"
+  prefix: "$",
+
+  onFinish: function (data) {
+    let desde = data.from
+    let hasta = data.to
+
+
+
+    $.get("http://localhost:3000/casas/", function (data, status) {
+
+
+      let rangoCasas = [];
+      let jsonData = data;
+      
+      for (let i = 0; i < jsonData.length; i++) {
+        jsonData[i].Precio = parseInt((jsonData[i].Precio).replace("$", "").replace(",", ""))
+        if (jsonData[i].Precio > desde && jsonData[i].Precio < hasta) {
+          
+         
+          jsonData[i].Precio = (new Intl.NumberFormat('ja-JP',{style: 'currency', currency: 'USD'}).format(jsonData[i].Precio))
+
+          rangoCasas.push(jsonData[i]);
+
+
+        }
+      }
+
+      
+
+      limpiarBusqueda()
+      renderCasas(rangoCasas)
+
+
+    });
+
+  }
 })
 
 function setSearch() {
@@ -26,59 +60,63 @@ setSearch()
 
 
 //traer datos
+$(document).ready(function () {
+  $('select:not([multiple])').material_select();
+  $("#buscar").click(function () {
 
+    $.get("http://localhost:3000/casas/", function (data, status) {
 
+      renderCasas(data);
 
-  $(document).ready(function(){
-    $("#buscar").click(function(){
-      $.get("http://localhost:3000/casas/", function(data, status){
-
-      //console.log(JSON.stringify(data))
-
-
-        //alert("Data: " + JSON.stringify(data) + "\nStatus: " + status);
-
-        $("#l1").append(`
-
-        <div class="card horizontal">
-        <div class="card-image">
-          <img src="img/home.jpg">
-        </div>
-        <div class="card-stacked">
-          <div class="card-content">
-            <div>
-              <b>Direccion: ${data[0].Direccion} </b><p>  </p>
-            </div>
-            <div>
-              <b>Ciudad: ${data[0].Ciudad} </b><p>  </p>
-            </div>
-            <div>
-              <b>Telefono: ${data[0].Telefono} </b><p></p>
-            </div>
-            <div>
-              <b>Código postal: ${data[0].Codigo_Postal} </b><p></p>
-            </div>
-            <div>
-              <b>Precio: ${data[0].Precio} </b><p></p>
-            </div>
-            <div>
-              <b>Tipo: ${data[0].Casa}</b><p></p>
-            </div>
-          </div>
-          <div class="card-action right-align">
-            <a href="#">Ver más</a>
-          </div>
-        </div>
-      </div>
-        
-        `)
-
-
-      });
     });
-  
-
-
+  });
 
 })
 
+function limpiarBusqueda() {
+
+  $("#l1").empty();
+}
+
+function renderCasas(data) {
+
+  for (let i = 0; i < data.length; i++) {
+    $("#l1").append(`
+
+    <div class="card horizontal">
+    <div class="card-image">
+      <img src="img/home.jpg">
+    </div>
+    <div class="card-stacked">
+      <div class="card-content">
+        <div>
+          <b>Direccion: ${data[i].Direccion} </b><p></p>
+        </div>
+        <div>
+          <b>Ciudad: ${data[i].Ciudad} </b><p></p>
+        </div>
+        <div>
+          <b>Telefono: ${data[i].Telefono} </b><p></p>
+        </div>
+        <div>
+          <b>Código postal: ${data[i].Codigo_Postal} </b><p></p>
+        </div>
+        <div>
+          <b>Precio: ${data[i].Precio} </b><p></p>
+        </div>
+        <div>
+          <b>Tipo: ${data[i].Tipo}</b><p></p>
+        </div>
+      </div>
+      <div class="card-action right-align">
+        <a href="#">Ver más</a>
+      </div>
+    </div>
+  </div>
+    
+    `)
+  }
+
+
+
+}
