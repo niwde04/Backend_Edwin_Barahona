@@ -1,4 +1,24 @@
 //Inicializador del elemento Slider
+var jsonData = []
+
+
+//traer datos
+$(document).ready(function () {
+  $('select:not([multiple])').material_select();
+  $.get("http://localhost:3000/casas/", function (data, status) {
+
+    for (let i = 0; i < data.length; i++) {
+      data[i].Precio = parseInt((data[i].Precio).replace("$", "").replace(",", ""))
+    }
+    jsonData = data
+  });
+
+  $("#buscar").click(function () {
+    renderCasas(jsonData);
+  });
+
+})
+
 $("#rangoPrecio").ionRangeSlider({
   type: "double",
   grid: false,
@@ -13,33 +33,26 @@ $("#rangoPrecio").ionRangeSlider({
     let hasta = data.to
 
 
+    let rangoCasas = [];
+    
+    for (let i = 0; i < jsonData.length; i++) {
+      console.log(jsonData[i].Precio)
+      if (jsonData[i].Precio > desde && jsonData[i].Precio < hasta) {
 
-    $.get("http://localhost:3000/casas/", function (data, status) {
+        jsonData[i].Precio = (new Intl.NumberFormat('ja-JP', {
+          style: 'currency',
+          currency: 'USD'
+        }).format(jsonData[i].Precio))
 
+        rangoCasas.push(jsonData[i]);
 
-      let rangoCasas = [];
-      let jsonData = data;
-      
-      for (let i = 0; i < jsonData.length; i++) {
-        jsonData[i].Precio = parseInt((jsonData[i].Precio).replace("$", "").replace(",", ""))
-        if (jsonData[i].Precio > desde && jsonData[i].Precio < hasta) {
-          
-         
-          jsonData[i].Precio = (new Intl.NumberFormat('ja-JP',{style: 'currency', currency: 'USD'}).format(jsonData[i].Precio))
-
-          rangoCasas.push(jsonData[i]);
-
-
-        }
       }
+    }
 
-      
-
-      limpiarBusqueda()
-      renderCasas(rangoCasas)
-
-
-    });
+console.log(rangoCasas)
+    limpiarBusqueda()
+    renderCasas(rangoCasas)
+    
 
   }
 })
@@ -59,19 +72,7 @@ function setSearch() {
 setSearch()
 
 
-//traer datos
-$(document).ready(function () {
-  $('select:not([multiple])').material_select();
-  $("#buscar").click(function () {
 
-    $.get("http://localhost:3000/casas/", function (data, status) {
-
-      renderCasas(data);
-
-    });
-  });
-
-})
 
 function limpiarBusqueda() {
 
