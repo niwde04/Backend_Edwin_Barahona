@@ -1,5 +1,7 @@
 //Inicializador del elemento Slider
 var dataJson = [];
+var desde = 0;
+var hasta = 0;
 
 $("#rangoPrecio").ionRangeSlider({
   type: "double",
@@ -11,30 +13,17 @@ $("#rangoPrecio").ionRangeSlider({
   prefix: "$",
 
   onFinish: function (data) {
-    let desde = data.from
-    let hasta = data.to
+    desde = data.from
+    hasta = data.to
 
+  },
 
-
-    $.get("http://localhost:3000/casas/", function (data, status) {
-
-
-      let rangoCasas = [];
-      for (let i = 0; i < data.length; i++) {
-
-        data[i].Precio = parseInt((data[i].Precio).replace("$", "").replace(",", ""))
-
-        if (data[i].Precio > desde && data[i].Precio < hasta) {
-          rangoCasas.push(data[i]);
-        }
-      }
-
-      limpiarBusqueda()
-      renderCasas(rangoCasas)
-
-    });
+  onStart: function (data) {
+    desde = data.from
+    hasta = data.to
 
   }
+
 })
 
 function setSearch() {
@@ -48,7 +37,7 @@ function setSearch() {
       $('#buscar').text("Busqueda Pesonalizada")
     }
     $('#personalizada').toggleClass('invisible')
-    
+
   })
 }
 
@@ -62,14 +51,14 @@ $(document).ready(function () {
     dataJson = data;
 
 
-    let renderCiudad =  llenarSelect(dataJson,"Ciudad");
+    let renderCiudad = llenarSelect(dataJson, "Ciudad");
 
     for (let i = 0; i < renderCiudad.length; i++) {
 
       $("#ciudad").append(`<option value= ${renderCiudad[i]} > ${renderCiudad[i]} </option>`)
     }
 
-    let renderTipo =  llenarSelect(dataJson,"Tipo");
+    let renderTipo = llenarSelect(dataJson, "Tipo");
 
     for (let i = 0; i < renderTipo.length; i++) {
 
@@ -77,30 +66,62 @@ $(document).ready(function () {
     }
 
 
-
-
     $('select:not([multiple])').material_select();
   });
 
 
   $("#buscar").click(function () {
+
     limpiarBusqueda()
-    renderCasas(dataJson);
+
+
+    if ($("#buscar").text() == "Ver Todos") {
+      renderCasas(dataJson)
+
+    } else {
+
+      $.get("http://localhost:3000/casas/", function (data, status) {
+
+        let rangoCasas = [];
+        for (let i = 0; i < data.length; i++) {
+
+          data[i].Precio = parseInt((data[i].Precio).replace("$", "").replace(",", ""))
+
+          let ciudadBusqueda = $("#ciudad option:selected").text();
+          let tipoBusqueda = $("#tipo option:selected").text();
+
+          console.log((data[i].Ciudad).trim() +''+ ciudadBusqueda.trim())
+
+          if ((  data[i].Precio > desde && data[i].Precio < hasta) && (data[i].Ciudad).trim() == ciudadBusqueda.trim() && (data[i].Tipo).trim() == tipoBusqueda.trim()) {
+           console.log("entra")
+            rangoCasas.push(data[i]);
+          }
+        }
+
+      
+        limpiarBusqueda()
+        renderCasas(rangoCasas)
+
+      })
+
+
+    }
+
   });
 })
 
-function llenarSelect(data,h){
+function llenarSelect(data, h) {
 
   let ciudadBusqueda = [];
 
   for (i = 0; i < data.length; i++) {
 
-    if (h=="Ciudad"){
+    if (h == "Ciudad") {
       ciudadBusqueda.push(data[i].Ciudad);
-    }else{
+    } else {
       ciudadBusqueda.push(data[i].Tipo);
     }
-    
+
   }
 
   const unicos = ciudadBusqueda.filter((valor, indice) => {
