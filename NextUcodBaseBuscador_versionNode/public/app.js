@@ -94,6 +94,7 @@ $(document).ready(function () {
 
           if ((  data[i].Precio > desde && data[i].Precio < hasta) && (data[i].Ciudad).trim() == ciudadBusqueda.trim() && (data[i].Tipo).trim() == tipoBusqueda.trim()) {
            console.log("entra")
+
             rangoCasas.push(data[i]);
           }
         }
@@ -160,7 +161,7 @@ function renderCasas(data) {
           <b>Código postal: ${data[i].Codigo_Postal} </b><p></p>
         </div>
         <div>
-          <b>Precio: ${data[i].Precio} </b><p></p>
+          <b>Precio: ${ new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'USD' }).format(data[i].Precio)} </b><p></p>
         </div>
         <div>
           <b>Tipo: ${data[i].Tipo}</b><p></p>
